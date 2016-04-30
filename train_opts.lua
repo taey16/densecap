@@ -13,7 +13,7 @@ function M.parse(arg)
   local data_json = 
     '/data2/visualgenome/regions_descriptions.json.json'
   local dataset_name = 
-    'visual_genome'
+    'visualgenome'
 
   local torch_model = 
     '/data2/ImageNet/ILSVRC2012/torch_cache/X_gpu1_resception_nag_lr0.00450_decay_start0_every160000/model_29.t7'
