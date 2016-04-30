@@ -136,9 +136,11 @@ function BoxSampler:updateOutput(input)
   local num_pos = math.min(self.batch_size / 2, total_pos)
   local num_neg = self.batch_size - num_pos
 
+  --[[
   print(string.format(
     'total_pos: %d, total_neg: %d, num_pos: %d, num_neg: %d', 
     total_pos, total_neg, num_pos, num_neg))
+  --]]
 
   -- We always sample positives without replacemet
   local pos_p = torch.ones(total_pos)
