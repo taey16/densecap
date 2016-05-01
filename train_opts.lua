@@ -34,7 +34,7 @@ function M.parse(arg)
   local test_interval = 20000
 
   local checkpoint_path = string.format(
-    '/storage/%s/checkpoints/finetune%d', dataset_name, finetune_cnn_after
+    '/storage/%s/checkpoints/vgg16_finetune%d', dataset_name, finetune_cnn_after
   )
 
   -- Core ConvNet settings
