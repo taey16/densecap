@@ -33,9 +33,21 @@ function M.parse(arg)
 
   local test_interval = 20000
 
+  local retrain_iter = 
+    440000
+    --0
+  local checkpoint_start_from =
+    '/storage/visual_genome/checkpoints/finetune-1/checkpoints.t7'
+    --''
   local checkpoint_path = string.format(
     '/storage/%s/checkpoints/vgg16_finetune%d/', dataset_name, finetune_cnn_after
   )
+
+
+  if checkpoint_start_from ~= '' and retrain_iter == 0 then
+    print(string.format('retrain from %s', start_from))
+    error(string.format('retrain_iter MUST NOT be zero'))
+  end
 
   -- Core ConvNet settings
   cmd:option('-backend', 'cudnn', 'nn|cudnn')
@@ -92,7 +104,7 @@ function M.parse(arg)
   cmd:option('-drop_prob', drop_prob, 'Dropout strength throughout the model.')
   cmd:option('-max_iters', -1, 'Number of iterations to run; -1 to run forever')
   cmd:option('-checkpoint_start_from', 
-    '',
+    checkpoint_start_from,
     'Load model from a checkpoint instead of random initialization.')
   cmd:option('-finetune_cnn_after', 
     finetune_cnn_after,

@@ -66,7 +66,8 @@ print('total number of parameters in CNN: ', cnn_grad_params:nElement())
 local loss_history = {}
 local all_losses = {}
 local results_history = {}
-local iter = 0
+--local iter = 0
+local iter = opt.retrain_iter
 local function lossFun()
   grad_params:zero()
   if opt.finetune_cnn_after ~= -1 and iter >= opt.finetune_cnn_after then
