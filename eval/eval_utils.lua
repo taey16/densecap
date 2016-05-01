@@ -78,7 +78,6 @@ function eval_utils.eval_split(kwargs)
   local loss_results = utils.dict_average(all_losses)
   print('Loss stats:')
   print(loss_results)
-  print('Average loss: ', loss_results.total_loss)
   
   local ap_results = evaluator:evaluate()
   print(string.format('mAP: %f', 100 * ap_results.map))
@@ -232,7 +231,6 @@ function DenseCaptioningEvaluator:evaluate(verbose)
   -- call python to evaluate all records and get their BLEU/METEOR scores
   local blob = eval_utils.score_captions(self.records, self.id) -- replace in place (prev struct will be collected)
   local scores = blob.scores -- scores is a list of scores, parallel to records
-  collectgarbage()
   collectgarbage()
 
   -- prints/debugging

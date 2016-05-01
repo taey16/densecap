@@ -238,6 +238,16 @@ while true do
       -- we need to reallocate the params and grad_params vectors.
       params, grad_params, cnn_params, cnn_grad_params = model:getParameters()
     end
+    logger_tst:add{
+      ['iter'] = iter,
+      ['mid_box_reg_loss'] = results.loss_results.mid_box_reg_loss,
+      ['captioning_loss'] = results.loss_results.captioning_loss,
+      ['end_objectness_loss'] = results.loss_results.end_objectness_loss,
+      ['mid_objectness_loss'] = results.loss_results.mid_objectness_loss,
+      ['total_loss'] = results.loss_results.total_loss,
+      ['end_box_reg_loss'] = results.loss_results.end_box_reg_loss,
+      ['mAP'] = results.ap_results.map,
+    }
   end
     
   -- stopping criterions
