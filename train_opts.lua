@@ -19,7 +19,7 @@ function M.parse(arg)
     '/data2/ImageNet/ILSVRC2012/torch_cache/X_gpu1_resception_nag_lr0.00450_decay_start0_every160000/model_29.t7'
 
   local drop_prob = 0.5
-  local finetune_cnn_after = -1
+  local finetune_cnn_after = 0 -- -1
 
   local sampler_batch_size = 256
   local sampler_high_thresh = 0.7
@@ -103,8 +103,8 @@ function M.parse(arg)
   cmd:option('-optim_epsilon', 1e-8, 'epsilon for smoothing')
   cmd:option('-drop_prob', drop_prob, 'Dropout strength throughout the model.')
   cmd:option('-max_iters', -1, 'Number of iterations to run; -1 to run forever')
-  cmd:option('-checkpoint_start_from', 
-    checkpoint_start_from,
+  cmd:option('-retrain_iter', retrain_iter, 'starting iter for retrain')
+  cmd:option('-checkpoint_start_from', checkpoint_start_from,
     'Load model from a checkpoint instead of random initialization.')
   cmd:option('-finetune_cnn_after', 
     finetune_cnn_after,
@@ -138,6 +138,8 @@ function M.parse(arg)
   cmd:option('-clip_final_boxes', 1, 'Whether to clip final boxes to image boundar')
   cmd:option('-eval_first_iteration', 0, 'evaluate on first iteration? 1 = do, 0 = dont.')
   cmd:option('-display', 5, 'display interval')
+
+  print('checkpoint_path: ' .. checkpoint_path)
 
   cmd:text()
   local opt = cmd:parse(arg or {})

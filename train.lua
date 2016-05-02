@@ -205,7 +205,7 @@ while true do
     cjson.encode_number_precision(4) -- number of sig digits to use in encoding
     cjson.encode_sparse_array(true, 2, 10)
     local text = cjson.encode(checkpoint)
-    local file = io.open(paths.concat(opt.checkpoint_path, 'checkpoints.json', 'w'))
+    local file = io.open(paths.concat(opt.checkpoint_path, 'checkpoints.json'), 'w')
     file:write(text)
     file:close()
     print('wrote ' .. opt.checkpoint_path .. '/checkpoints.json')
