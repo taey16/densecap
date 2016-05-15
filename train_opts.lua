@@ -19,7 +19,7 @@ function M.parse(arg)
     '/data2/ImageNet/ILSVRC2012/torch_cache/X_gpu1_resception_nag_lr0.00450_decay_start0_every160000/model_29.t7'
 
   local drop_prob = 0.5
-  local finetune_cnn_after = 0 -- -1
+  local finetune_cnn_after = -1
 
   local sampler_batch_size = 256
   local sampler_high_thresh = 0.7
@@ -34,13 +34,13 @@ function M.parse(arg)
   local test_interval = 20000
 
   local retrain_iter = 
-    440000
-    --0
+    --440000
+    0
   local checkpoint_start_from =
-    '/storage/visual_genome/checkpoints/finetune-1/checkpoints.t7'
-    --''
+    --'/storage/visual_genome/checkpoints/finetune-1/checkpoints.t7'
+    ''
   local checkpoint_path = string.format(
-    '/storage/%s/checkpoints/vgg16_finetune%d/', dataset_name, finetune_cnn_after
+    '/storage/%s/checkpoints/vgg16_finetune%d_iter%d/', dataset_name, finetune_cnn_after, retrain_iter
   )
 
 
