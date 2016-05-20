@@ -18,23 +18,32 @@ function M.parse(arg)
   local torch_model = 
     '/data2/ImageNet/ILSVRC2012/torch_cache/X_gpu1_resception_nag_lr0.00450_decay_start0_every160000/model_29.t7'
 
-  local drop_prob = 0.5
-  local finetune_cnn_after = -1
-
   local sampler_batch_size = 256
   local sampler_high_thresh = 0.7
   local sampler_low_thresh = 0.3
   local rpn_hidden_dim = 512
 
+  local mid_box_reg_weight = 0.05
+  local mid_objectness_weight = 0.1
+  local end_box_reg_weight = 0.1
+  local end_objectness_weight = 0.1
+  local captioning_weight = 1.0
+
+  local drop_prob = 0.5
   local rnn_size = 512
   local input_encoding_size = 512
 
+  local finetune_cnn_after = -1
   local learning_rate = 1e-5
   local cnn_learning_rate = 1e-5
+  local learning_rate_decay_seed = 
+    0.9
   local learning_rate_decay_start = 
-    72100 * 1
+    77396 * 5
   local learning_rate_decay_every = 
-    72100
+    77396
+  local weight_decay = 1e-6
+  local box_reg_decay = 5e-5
 
   local test_interval = 20000
 
@@ -74,27 +83,23 @@ function M.parse(arg)
     'Whether to ignore out-of-bounds boxes for sampling at training time')
   
   -- Loss function weights
-  cmd:option('-mid_box_reg_weight', 0.05,
+  cmd:option('-mid_box_reg_weight', mid_box_reg_weight,
     'Weight for box regression in the RPN')
-  cmd:option('-mid_objectness_weight', 0.1,
+  cmd:option('-mid_objectness_weight', mid_objectness_weight,
     'Weight for box classification in the RPN')
-  cmd:option('-end_box_reg_weight', 0.1,
+  cmd:option('-end_box_reg_weight', end_box_reg_weight,
     'Weight for box regression in the recognition network')
-  cmd:option('-end_objectness_weight', 0.1,
+  cmd:option('-end_objectness_weight', end_objectness_weight,
     'Weight for box classification in the recognition network')
-  cmd:option('-captioning_weight',1.0, 'Weight for captioning loss')
-  cmd:option('-weight_decay', 1e-6, 'L2 weight decay penalty strength')
-  cmd:option('-box_reg_decay', 5e-5,
+  cmd:option('-captioning_weight', captioning_weight, 'Weight for captioning loss')
+  cmd:option('-weight_decay', weight_decay, 'L2 weight decay penalty strength')
+  cmd:option('-box_reg_decay', box_reg_decay,
     'Strength of pull that boxes experience towards their anchor')
 
   -- Data input settings
-  cmd:option('-data_h5', 
-    data_h5,
-    --'data/VG-regions.h5', 
+  cmd:option('-data_h5', data_h5,
     'HDF5 file containing the preprocessed dataset (from proprocess.py)')
-  cmd:option('-data_json', 
-    data_json,
-    --'data/VG-regions-dicts.json',
+  cmd:option('-data_json', data_json,
     'JSON file containing additional dataset info (from preprocess.py)')
   cmd:option('-proposal_regions_h5', '',
     'override RPN boxes with boxes from this h5 file (empty = don\'t override)')
@@ -104,6 +109,8 @@ function M.parse(arg)
   -- Optimization
   cmd:option('-learning_rate', learning_rate, 'learning rate to use')
   cmd:option('-cnn_learning_rate', cnn_learning_rate, 'learning rate to use')
+  cmd:option('-learning_rate_decay_seed', learning_rate_decay_seed,
+    'decay_factor = math.pow(opt.learning_rate_decay_seed, frac)')
   cmd:option('-learning_rate_decay_start', learning_rate_decay_start, 
     'at what iteration to start decaying learning rate? (-1 = dont)')
   cmd:option('-learning_rate_decay_every', learning_rate_decay_every, 
@@ -116,8 +123,7 @@ function M.parse(arg)
   cmd:option('-retrain_iter', retrain_iter, 'starting iter for retrain')
   cmd:option('-checkpoint_start_from', checkpoint_start_from,
     'Load model from a checkpoint instead of random initialization.')
-  cmd:option('-finetune_cnn_after', 
-    finetune_cnn_after,
+  cmd:option('-finetune_cnn_after', finetune_cnn_after,
     'Start finetuning CNN after this many iterations (-1 = never finetune)')
   cmd:option('-val_images_use', -1, 'Number of validation images to use for evaluation; -1 to use all')
 
@@ -134,8 +140,7 @@ function M.parse(arg)
     'Number of region proposal to use at test-time')
 
   -- Visualization
-  cmd:option('-progress_dump_every', 
-    test_interval,
+  cmd:option('-progress_dump_every', test_interval,
     'Every how many iterations do we write a progress report to vis/out ?. 0 = disable.')
   cmd:option('-losses_log_every', 0,
     'How often do we save losses, for inclusion in the progress dump? (0 = disable)')
@@ -150,6 +155,7 @@ function M.parse(arg)
   cmd:option('-display', 5, 'display interval')
 
   print('checkpoint_path: ' .. checkpoint_path)
+  io.flush()
 
   cmd:text()
   local opt = cmd:parse(arg or {})
