@@ -68,9 +68,9 @@ local all_losses = {}
 local results_history = {}
 --local iter = 0
 local iter = opt.retrain_iter
-local function lossFun()
+local function lossFun(finetune)
   grad_params:zero()
-  if opt.finetune_cnn_after ~= -1 and iter >= opt.finetune_cnn_after then
+  if finetune then
     cnn_grad_params:zero() 
   end
   model:training()
@@ -132,22 +132,38 @@ local cnn_optim_state = {}
 local best_val_score = -1
 while true do  
 
+  local finetune = false
+  if opt.finetune_cnn_after >= 0 and iter >= opt.fineetune_cnn_after then
+    finetune = true
+  end
+
   -- Compute loss and gradient
-  local losses, stats = lossFun()
+  local losses, stats = lossFun(finetune)
+
+  -- decay the learning rate for both LM and CNN
+  local learning_rate = opt.learning_rate
+  local cnn_learning_rate = opt.cnn_learning_rate
+  if iter > opt.learning_rate_decay_start and opt.learning_rate_decay_start >= 0 then
+    local frac = (iter - opt.learning_rate_decay_start) / opt.learning_rate_decay_every
+    local decay_factor = math.pow(opt.learning_rate_decay_seed, frac)
+    learning_rate = learning_rate * decay_factor
+    cnn_learning_rate = cnn_learning_rate * decay_factor
+  end
 
   -- Parameter update
-  adam(params, grad_params, opt.learning_rate, opt.optim_beta1,
+  adam(params, grad_params, learning_rate, opt.optim_beta1,
        opt.optim_beta2, opt.optim_epsilon, optim_state)
 
   -- Make a step on the CNN if finetuning
-  if opt.finetune_cnn_after >= 0 and iter >= opt.finetune_cnn_after then
-    adam(cnn_params, cnn_grad_params, opt.learning_rate,
-         opt.optim_beta1, opt.optim_beta2, opt.optim_epsilon, cnn_optim_state)
+  if finetune then
+    adam(cnn_params, cnn_grad_params, cnn_learning_rate,
+      opt.optim_beta1, opt.optim_beta2, opt.optim_epsilon, cnn_optim_state)
   end
 
   if iter % opt.display == 0 then
     -- print loss and timing/benchmarks
-    print(string.format('iter %d: %s', iter, utils.build_loss_string(losses)))
+    print(string.format(
+      'iter %d: %s, finetune: %s', iter, utils.build_loss_string(losses), tostring(finetune)))
     if opt.timing then print(utils.build_timing_string(stats.times)) end
     io.flush()
     --print(losses)
@@ -208,7 +224,7 @@ while true do
     local file = io.open(paths.concat(opt.checkpoint_path, 'checkpoints.json'), 'w')
     file:write(text)
     file:close()
-    print('wrote ' .. opt.checkpoint_path .. '/checkpoints.json')
+    print('wrote ' .. paths.concat(opt.checkpoint_path, 'checkpoints.json'))
     io.flush()
 
     -- Only save t7 checkpoint if there is an improvement in mAP

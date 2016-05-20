@@ -30,6 +30,11 @@ function M.parse(arg)
   local input_encoding_size = 512
 
   local learning_rate = 1e-5
+  local cnn_learning_rate = 1e-5
+  local learning_rate_decay_start = 
+    72100 * 1
+  local learning_rate_decay_every = 
+    72100
 
   local test_interval = 20000
 
@@ -98,6 +103,11 @@ function M.parse(arg)
 
   -- Optimization
   cmd:option('-learning_rate', learning_rate, 'learning rate to use')
+  cmd:option('-cnn_learning_rate', cnn_learning_rate, 'learning rate to use')
+  cmd:option('-learning_rate_decay_start', learning_rate_decay_start, 
+    'at what iteration to start decaying learning rate? (-1 = dont)')
+  cmd:option('-learning_rate_decay_every', learning_rate_decay_every, 
+    'every how many iterations thereafter to drop LR by half?')
   cmd:option('-optim_beta1', 0.9, 'beta1 for adam')
   cmd:option('-optim_beta2', 0.999, 'beta2 for adam')
   cmd:option('-optim_epsilon', 1e-8, 'epsilon for smoothing')
