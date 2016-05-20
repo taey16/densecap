@@ -29,7 +29,7 @@ function eval_utils.eval_split(kwargs)
   assert(split == 'val' or split == 'test', 'split must be "val" or "test"')
   local split_to_int = {val=1, test=2}
   split = split_to_int[split]
-  print('using split ', split)
+  io.flush(print('using split ', split))
   
   model:evaluate()
   loader:resetIterator(split)
@@ -68,7 +68,7 @@ function eval_utils.eval_split(kwargs)
     local num_images = info.split_bounds[2]
     if max_images > 0 then num_images = math.min(num_images, max_images) end
     local num_boxes = boxes:size(1)
-    print(string.format(msg, info.filename, counter, num_images, split, num_boxes))
+    io.flush(print(string.format(msg, info.filename, counter, num_images, split, num_boxes)))
 
     -- Break out if we have processed enough images
     if max_images > 0 and counter >= max_images then break end
@@ -81,6 +81,7 @@ function eval_utils.eval_split(kwargs)
   
   local ap_results = evaluator:evaluate()
   print(string.format('mAP: %f', 100 * ap_results.map))
+  io.flush()
   
   local out = {
     loss_results=loss_results,
@@ -243,6 +244,7 @@ function DenseCaptioningEvaluator:evaluate(verbose)
         for kk,vv in pairs(record.references) do txtgt = txtgt .. vv .. '. ' end
         print(string.format('IMG %d PRED: %s, GT: %s, OK: %d, OV: %f SCORE: %f',
               record.imgid, record.candidate, txtgt, record.ok, record.ov, scores[k]))
+        io.flush()
       end  
     end
   end

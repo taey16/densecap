@@ -39,10 +39,10 @@ local opt = cmd:parse(arg)
 -- First load the model
 local checkpoint = torch.load(opt.checkpoint)
 local model = checkpoint.model
-print 'Loaded model'
+io.flush(print('Loaded model'))
 
 local dtype, use_cudnn = utils.setup_gpus(opt.gpu, opt.use_cudnn)
-print(string.format('Using dtype "%s"', dtype))
+io.flush(print(string.format('Using dtype "%s"', dtype)))
 
 model:convert(dtype, use_cudnn)
 model:setTestArgs{
