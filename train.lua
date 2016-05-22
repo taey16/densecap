@@ -89,7 +89,7 @@ local function lossFun(finetune)
   -- Run the model forward and backward
   model.timing = opt.timing
   model.cnn_backward = false
-  if opt.finetune_cnn_after ~= -1 and iter > opt.finetune_cnn_after then
+  if finetune then
     model.finetune_cnn = true
   end
   model.dump_vars = false
@@ -133,7 +133,7 @@ local best_val_score = -1
 while true do  
 
   local finetune = false
-  if opt.finetune_cnn_after >= 0 and iter >= opt.fineetune_cnn_after then
+  if opt.finetune_cnn_after >= 0 and iter >= opt.finetune_cnn_after then
     finetune = true
   end
 
