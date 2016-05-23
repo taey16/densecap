@@ -11,7 +11,6 @@ require 'densecap.modules.LogisticCriterion'
 require 'densecap.modules.PosSlicer'
 
 local box_utils = require 'densecap.box_utils'
-local net_utils = require 'densecap.net_utils'
 local utils = require 'densecap.utils'
 
 
@@ -19,6 +18,8 @@ local DenseCapModel, parent = torch.class('DenseCapModel', 'nn.Module')
 
 
 function DenseCapModel:__init(opt)
+  -- only require loadcaffe when initializing model
+  local net_utils = require 'densecap.net_utils'
   opt = opt or {}  
   opt.cnn_name = utils.getopt(opt, 'cnn_name', 'vgg-16')
   opt.backend = utils.getopt(opt, 'backend', 'cudnn')
@@ -457,3 +458,26 @@ function DenseCapModel:forward_backward(data)
 
   return losses
 end
+
+-- add script for feature extraction
+function DenseCapModel:extractFeatures(input)
+  -- -- Make sure the input is (1, 3, H, W)
+  assert(input:dim() == 4 and input:size(1) == 1 and input:size(2) == 3)
+  local H, W = input:size(3), input:size(4)
+  self.nets.localization_layer:setImageSize(H, W)
+
+  local output = self.net:forward(input)
+  local final_boxes_float = output[4]:float()
+  local class_scores_float = output[1]:float()
+  local boxes_scores = torch.FloatTensor(final_boxes_float:size(1), 5)
+  local boxes_x1y1x2y2 = box_utils.xcycwh_to_x1y1x2y2(final_boxes_float)
+  boxes_scores[{{}, {1, 4}}]:copy(boxes_x1y1x2y2)
+  boxes_scores[{{}, 5}]:copy(class_scores_float)
+  local idx = box_utils.nms(boxes_scores, self.opt.final_nms_thresh)
+
+  local boxes_xcycwh = final_boxes_float:index(1, idx):typeAs(self.output[4])
+  local feats = self.nets.recog_base.output:float():index(1, idx):typeAs(self.output[4])
+
+  return boxes_xcycwh, feats  
+end
+

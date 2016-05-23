@@ -47,7 +47,7 @@ function M.parse(arg)
   local weight_decay = 1e-6
   local box_reg_decay = 5e-5
 
-  local eval_first_iteration = 1
+  local eval_first_iteration = 0
   local test_interval = 20000
 
   local retrain_iter = 
@@ -161,7 +161,8 @@ function M.parse(arg)
   cmd:option('-gpu', 0, 'which gpu to use. -1 = use CPU')
   cmd:option('-timing', false, 'whether to time parts of the net')
   cmd:option('-clip_final_boxes', 1, 'Whether to clip final boxes to image boundar')
-  cmd:option('-eval_first_iteration', eval_first_iteration, 'evaluate on first iteration? 1 = do, 0 = dont.')
+  cmd:option('-eval_first_iteration', eval_first_iteration, 
+    'evaluate on first iteration? 1 = do, 0 = dont.')
   cmd:option('-display', 5, 'display interval')
 
   print('checkpoint_path: ' .. checkpoint_path)

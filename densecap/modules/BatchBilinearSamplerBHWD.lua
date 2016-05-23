@@ -116,6 +116,12 @@ function layer:updateOutput(input)
   self:check{self.inputImageView, grids}
   self.output:resize(B, grids:size(2), grids:size(3), C)
 
+  --[[
+  This patch solved this error:
+  ./densecap/modules/BatchBilinearSamplerBHWD.lua:119: 
+  bad argument #4 to 'BilinearSamplerBHWD_updateOutput' (torch.CudaTensor expected, got string)
+  --]]
+  --inputImages.nn.BilinearSamplerBHWD_updateOutput(self, self.inputImageView, grids)
   inputImages.nn.BilinearSamplerBHWD_updateOutput(self, self.inputImageView, grids, self.output)
 
   return self.output
