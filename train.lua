@@ -156,8 +156,10 @@ while true do
 
   -- Make a step on the CNN if finetuning
   if finetune then
-    adam(cnn_params, cnn_grad_params, cnn_learning_rate,
-      opt.optim_beta1, opt.optim_beta2, opt.optim_epsilon, cnn_optim_state)
+    --adam(cnn_params, cnn_grad_params, cnn_learning_rate,
+    --  opt.optim_beta1, opt.optim_beta2, opt.optim_epsilon, cnn_optim_state)
+    nag(cnn_params, cnn_grad_params, cnn_learning_rate, 
+      opt.cnn_optim_alpha, cnn_optim_state)
   end
 
   if iter % opt.display == 0 then
