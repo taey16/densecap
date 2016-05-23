@@ -18,7 +18,7 @@ require 'densecap.DataLoader'
 require 'densecap.DenseCapModel'
 require 'densecap.optim_updates'
 local utils = require 'densecap.utils'
-local opts = require 'train_opts'
+local opts = require 'opts.train_opts'
 local models = require 'models'
 local eval_utils = require 'eval.eval_utils'
 
@@ -143,7 +143,11 @@ while true do
   -- decay the learning rate for both LM and CNN
   local learning_rate = opt.learning_rate
   local cnn_learning_rate = opt.cnn_learning_rate
+  local lr_decay = false
   if iter > opt.learning_rate_decay_start and opt.learning_rate_decay_start >= 0 then
+    lr_decay = true
+  end
+  if lr_decay then
     local frac = (iter - opt.learning_rate_decay_start) / opt.learning_rate_decay_every
     local decay_factor = math.pow(opt.learning_rate_decay_seed, frac)
     learning_rate = learning_rate * decay_factor
@@ -156,16 +160,21 @@ while true do
 
   -- Make a step on the CNN if finetuning
   if finetune then
-    --adam(cnn_params, cnn_grad_params, cnn_learning_rate,
-    --  opt.optim_beta1, opt.optim_beta2, opt.optim_epsilon, cnn_optim_state)
-    nag(cnn_params, cnn_grad_params, cnn_learning_rate, 
-      opt.cnn_optim_alpha, cnn_optim_state)
+    if opt.cnn_optim == 'nag' then
+      nag(cnn_params, cnn_grad_params, cnn_learning_rate, 
+        opt.cnn_optim_alpha, cnn_optim_state)
+    elseif opt.cnn_optim == 'adam' then
+      adam(cnn_params, cnn_grad_params, cnn_learning_rate,
+        opt.optim_beta1, opt.optim_beta2, opt.optim_epsilon, cnn_optim_state)
+    else
+      error('check opt.cnn_optim: ' .. opt.cnn_optim)
+    end
   end
 
   if iter % opt.display == 0 then
     print(string.format(
-      'iter %d: %s, lr: %f, cnn_lr: %f, finetune: %s', iter, utils.build_loss_string(losses), 
-      learning_rate, cnn_learning_rate, tostring(finetune)))
+      'iter %d: %s, lr: %f, cnn_lr: %f, decay: %s, finetune: %s', iter, utils.build_loss_string(losses), 
+      learning_rate, cnn_learning_rate, tostring(lr_decay), tostring(finetune)))
     if opt.timing then print(utils.build_timing_string(stats.times)) end
     io.flush()
   end

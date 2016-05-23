@@ -33,11 +33,13 @@ function M.parse(arg)
   local rnn_size = 512
   local input_encoding_size = 512
 
-  local finetune_cnn_after = -1
+  local finetune_cnn_after = 0
   local learning_rate = 1e-5
   local cnn_learning_rate = 1e-5
+  local cnn_optim = 'nag'
   local learning_rate_decay_seed = 
-    0.9
+    --0.9
+    -1
   local learning_rate_decay_start = 
     77396 * 5
   local learning_rate_decay_every = 
@@ -55,9 +57,9 @@ function M.parse(arg)
     --'/storage/visual_genome/checkpoints/finetune-1/checkpoints.t7'
     ''
   local checkpoint_path = string.format(
-    '/storage/%s/checkpoints/vgg16_lr%f_cnnlr%f_seed%f_start%d_every%d_wc%f_finetune%d_iter%d/', 
+    '/storage/%s/checkpoints/vgg16_lr%f_%s_cnnlr%f_seed%f_start%d_every%d_wc%f_finetune%d_iter%d/', 
     dataset_name, 
-    learning_rate, cnn_learning_rate, 
+    learning_rate, cnn_optim, cnn_learning_rate,
     learning_rate_decay_seed, learning_rate_decay_start, learning_rate_decay_every, 
     weight_decay, finetune_cnn_after, retrain_iter
   )
@@ -123,6 +125,7 @@ function M.parse(arg)
   cmd:option('-optim_beta1', 0.9, 'beta1 for adam')
   cmd:option('-optim_beta2', 0.999, 'beta2 for adam')
   cmd:option('-optim_epsilon', 1e-8, 'epsilon for smoothing')
+  cmd:option('-cnn_optim', cnn_optim, 'optimization to use for CNN')
   cmd:option('-cnn_optim_alpha',0.9, 'alpha for momentum of CNN')
   cmd:option('-cnn_optim_beta',0.999, 'beta for momentum of CNN')
   cmd:option('-drop_prob', drop_prob, 'Dropout strength throughout the model.')
