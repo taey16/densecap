@@ -151,8 +151,8 @@ while true do
   end
 
   -- Parameter update
-  adam(params, grad_params, learning_rate, opt.optim_beta1,
-       opt.optim_beta2, opt.optim_epsilon, optim_state)
+  adam(params, grad_params, learning_rate, 
+    opt.optim_beta1, opt.optim_beta2, opt.optim_epsilon, optim_state)
 
   -- Make a step on the CNN if finetuning
   if finetune then
@@ -161,12 +161,11 @@ while true do
   end
 
   if iter % opt.display == 0 then
-    -- print loss and timing/benchmarks
     print(string.format(
-      'iter %d: %s, finetune: %s', iter, utils.build_loss_string(losses), tostring(finetune)))
+      'iter %d: %s, lr: %f, cnn_lr: %f, finetune: %s', iter, utils.build_loss_string(losses), 
+      learning_rate, cnn_learning_rate, tostring(finetune)))
     if opt.timing then print(utils.build_timing_string(stats.times)) end
     io.flush()
-    --print(losses)
   end
 
   --[[
