@@ -36,10 +36,10 @@ function M.parse(arg)
   local finetune_cnn_after = 0
   local learning_rate = 1e-5
   local cnn_learning_rate = 1e-5
-  local cnn_optim = 'nag'
+  local cnn_optim = 'adam'
   local learning_rate_decay_seed = 
-    --0.9
-    -1
+    0.9
+    -- -1
   local learning_rate_decay_start = 
     77396 * 5
   local learning_rate_decay_every = 
@@ -47,15 +47,15 @@ function M.parse(arg)
   local weight_decay = 1e-6
   local box_reg_decay = 5e-5
 
-  local eval_first_iteration = 0
+  local eval_first_iteration = 1
   local test_interval = 20000
 
   local retrain_iter = 
-    --440000
-    0
+    500000
+    --0
   local checkpoint_start_from =
-    --'/storage/visual_genome/checkpoints/finetune-1/checkpoints.t7'
-    ''
+    '/storage/visualgenome/checkpoints/vgg16_lr0.000010_cnnlr0.000010_seed0.900000_start386980_every77396_wc0.000001_finetune0_iter0/checkpoints.t7'
+    --''
   local checkpoint_path = string.format(
     '/storage/%s/checkpoints/vgg16_lr%f_%s_cnnlr%f_seed%f_start%d_every%d_wc%f_finetune%d_iter%d/', 
     dataset_name, 
